@@ -8,30 +8,10 @@ export class EC2Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const vpc = new ec2.Vpc(this, 'EC2VPC', {
+    const vpc = ec2.Vpc.fromLookup(this, 'DemoVPC', {
       vpcName: 'demo-vpc',
-      cidr: '10.0.0.0/16',
-      maxAzs: 2,
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: 'public',
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-        {
-          cidrMask: 24,
-          name: 'private',
-          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-        },
-      ],
     });
-    const securityGroup = new ec2.SecurityGroup(this, 'SecurityGroup', {
-      securityGroupName: 'demo-sg',
-      vpc,
-      description: 'Allow SSH (TCP port 22) in',
-      allowAllOutbound: true
-    });
-    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22), 'Allow SSH Access')
+    const securityGroup = ec2.SecurityGroup.fromLookupByName(this, 'DemoSG', 'demo-sg', vpc);
 
     const role = new iam.Role(this, 'ec2Role', {
       roleName: 'demo-rc2-role',
@@ -83,33 +63,8 @@ export class EC2Stack extends cdk.Stack {
       role: role,
       minCapacity: 1,
       maxCapacity: 3,
-      userData: WorkerUserData.getWorkerUserData(), // worker node'lar için user data script'i
+      userData: WorkerUserData.getWorkerUserData(), 
     });
-
-    // const masterAsset = new Asset(this, 'MasterAsset', { path: path.join(__dirname, '../src/master-config.sh') });
-
-    // const masterLocalPath = masterNode.userData.addS3DownloadCommand({
-    //   bucket: masterAsset.bucket,
-    //   bucketKey: masterAsset.s3ObjectKey,
-    // });
-
-    // masterNode.userData.addExecuteFileCommand({
-    //   filePath: masterLocalPath,
-    //   arguments: '--verbose -y'
-    // });
-    // masterAsset.grantRead(masterNode.role);
-
-    // const workerAsset = new Asset(this, 'WorkerAsset', { path: path.join(__dirname, '../src/worker-config.sh') });
-    // const workerLocalPath = workerNode.userData.addS3DownloadCommand({
-    //   bucket: workerAsset.bucket,
-    //   bucketKey: workerAsset.s3ObjectKey,
-    // });
-
-    // workerNode.userData.addExecuteFileCommand({
-    //   filePath: workerLocalPath,
-    //   arguments: '--verbose -y'
-    // });
-    // workerAsset.grantRead(workerNode.role);
 
     const token = ec2.UserData.forLinux();
     token.addCommands(`cat /tmp/kubeadm-join-command.sh | grep -o -P '(?<=token).*(?=--)'`);
