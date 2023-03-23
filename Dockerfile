@@ -7,6 +7,12 @@ WORKDIR /app
 # Copy requirements file to working directory
 COPY requirements.txt .
 
+ARG MYSQL_USERNAME
+ARG MYSQL_PASSWORD
+ARG MYSQL_INSTANCE_NAME
+ARG MYSQL_PORT_3306_TCP_ADDR
+ARG MYSQL_PORT_3306_TCP_PORT
+
 # Install dependencies
 RUN apt-get update && \
     apt-get install -y \

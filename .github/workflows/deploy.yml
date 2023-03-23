@@ -5,6 +5,11 @@ on:
     branches: ["main"]
 
 env:
+  MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+  MYSQL_PASSWORD: ${{ secrest.MYSQL_PASSWORD }}
+  MYSQL_INSTANCE_NAME: ${{ secrets.MYSQL_INSTANCE_NAME }}
+  MYSQL_PORT_3306_TCP_ADDR: ${{ secrets.MYSQL_PORT_3306_TCP_ADDR }}
+  MYSQL_PORT_3306_TCP_PORT: ${{ secrets.MYSQL_PORT_3306_TCP_PORT }}
   KUBECONFIG: ${{ secrets.KUBECONFIG }}
   SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
   SSH_USERNAME: app-user
@@ -40,6 +45,12 @@ jobs:
         id: build-client-user-image
         uses: docker/build-push-action@v2
         with:
+          build_args: |
+            MYSQL_USERNAME=${{ env.MYSQL_USERNAME }}
+            MYSQL_PASSWORD=${{ env.MYSQL_PASSWORD }}
+            MYSQL_INSTANCE_NAME=${{ env.MYSQL_INSTANCE_NAME }}
+            MYSQL_PORT_3306_TCP_ADDR=${{ env.MYSQL_PORT_3306_TCP_ADDR }}
+            MYSQL_PORT_3306_TCP_PORT=${{ env.MYSQL_PORT_3306_TCP_PORT }}
           context: .
           file: Dockerfile
           tags: |
