@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - name: demo-app
+        image: 338505597855.dkr.ecr.us-west-2.amazonaws.com/demo-app:latest
+        ports:
+          - containerPort: 3000
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+        env:
+          - name: MYSQL_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: db-secrets
+                key: MYSQL_USERNAME
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secrets
+                key: MYSQL_PASSWORD
+          - name: MYSQL_INSTANCE_NAME
+            value: demoappdb
+          - name: MYSQL_PORT_3306_TCP_ADDR
+            value: demoappdb
+          - name: MYSQL_PORT_3306_TCP_PORT
+            value: "3306"
