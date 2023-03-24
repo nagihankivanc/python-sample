@@ -1,0 +1,7 @@
+This project is deployed using Kustomize manifests via Github Actions to a Kubernetes cluster running on EC2 built using the AWS CDK.
+
+The CDK code in the ec2-cluster directory is written with Typescript. Given the AWS access and secret access keys, it can be deployed with the `cdk deploy` command. The resources to be deployed are VPC, RDS Mysql database and EC2 instances, respectively. Kubernetes cluster is set up with scripts run using CDK's user data feature.
+
+The k8s directory contains the customizable manifests files. Accordingly, deployment and secret objects are created according to staging and production environments.
+
+Actions workflows in the .github directory run separately according to the envrionments. It is deployed to the stage namespace with the merge made to the main branch, and it is deployed to the production namespace with the release tag.
